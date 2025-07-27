@@ -6,6 +6,9 @@
         .DESCRIPTION
         The Submit-BTNotification function submits a completed toast notification to the operating system's notification manager for display.
         This function supports advanced scenarios such as event callbacks for user actions or toast dismissal, sequence numbering to ensure correct update order, unique identification for toast replacement, expiration control, and direct Action Center delivery.
+        Supports colored action buttons: when a button generated via New-BTButton includes the -Color parameter
+        ('Green' or 'Red'), the notification will style those buttons as "Success" (green) or "Critical" (red)
+        to visually distinguish positive or destructive actions where supported.
 
         When an action ScriptBlock is supplied (Activated, Dismissed, or Failed), a normalized SHA256 hash of its content is used to generate a unique SourceIdentifier for event registration.
         This prevents duplicate handler registration for the same ScriptBlock, warning if a duplicate registration is attempted.
@@ -100,10 +103,19 @@
     $ToastXml.LoadXml($ToastXmlContent)
 
     if ($Urgent) {
-        try {
-            $ToastXml.GetElementsByTagName('toast')[0].SetAttribute('scenario', 'urgent')
-        } catch {
-            # We don't actually want to capture these errors, but rather suppress them.
+        try {$ToastXml.GetElementsByTagName('toast')[0].SetAttribute('scenario', 'urgent')} catch {}
+    }
+
+    if ($ToastXml.GetXml() -match 'hint-actionId="(Red|Green)"') {
+        try {$ToastXml.GetElementsByTagName('toast').SetAttribute('useButtonStyle', 'true')} catch {}
+
+        foreach ($ActionElement in $ToastXml.GetElementsByTagName('actions')[0].ChildNodes) {
+            if ($ActionElement.GetAttribute('hint-actionId') -eq 'Red') {
+                $ActionElement.SetAttribute('hint-buttonStyle', 'Critical')
+            }
+            if ($ActionElement.GetAttribute('hint-actionId') -eq 'Green') {
+                $ActionElement.SetAttribute('hint-buttonStyle', 'Success')
+            }
         }
     }
 

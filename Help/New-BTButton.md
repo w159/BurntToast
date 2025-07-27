@@ -20,6 +20,7 @@ Up to five buttons can be added to a single Toast notification. Buttons may have
 | `ActivationType`| Microsoft.Toolkit.Uwp.Notifications.ToastActivationType| Defines the activation type that triggers when the button is pressed. Defaults to Protocol.                                                                                            | No                                          |
 | `ImageUri`     | String                                                  | Path or URI of an image icon to display next to the button label.                                                                                                                      | No                                          |
 | `Id`           | String                                                  | Specifies an ID associated with another toast control (textbox or selection box). For standard buttons, this aligns the button next to a control; for snooze buttons, associates with a selection box.                      | No                                          |
+| `Color`        | String (Green/Red)                                      | If specified as `Green` or `Red`, the button will be visually styled as "Success" (green) or "Critical" (red) where supported. Use for representing positive/primary or destructive actions.                                | No                                          |
 
 ## INPUTS
 
@@ -73,6 +74,28 @@ New-BTButton -Content 'View Picture' -Arguments $pic -ImageUri $pic
 ```
 
 Button with a picture to the left, launches the image file.
+
+## NOTES
+
+To visually distinguish action buttons, you can set the `Color` parameter to `Green` or `Red`. This will render these buttons with a "Success" (green) or "Critical" (red) style in systems that support advanced toast button styling (Windows 11+). Useful for marking approve/submit (green) or destructive (red) actions.
+
+## EXAMPLES
+
+### Example 6
+
+```powershell
+New-BTButton -Content 'Approve' -Arguments 'approve' -Color Green
+```
+
+Creates a "Success" style (green) button intended for positive actions.
+
+### Example 7
+
+```powershell
+New-BTButton -Content 'Delete' -Arguments 'delete' -Color Red
+```
+
+Creates a "Critical" style (red) button for destructive actions.
 
 ## LINKS
 

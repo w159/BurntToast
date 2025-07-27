@@ -88,3 +88,12 @@ Describe 'New-BTButton' {
         }
     }
 }
+
+Context 'custom button with color' {
+    It 'creates a button with green color without throwing' {
+        { New-BTButton -Content 'Approve' -Arguments 'approve' -Color Green -WhatIf } | Should -Not -Throw
+    }
+    It 'creates a button with red color without throwing' {
+        { New-BTButton -Content 'Delete' -Arguments 'delete' -Color Red -WhatIf } | Should -Not -Throw
+    }
+}
