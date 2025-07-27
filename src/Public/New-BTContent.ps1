@@ -26,6 +26,7 @@
 
         .PARAMETER Scenario
         Enum. Tells Windows to treat the toast as an alarm, reminder, or more (ToastScenario).
+        Will be ignored if toast is submitted with `-Urgent` switch on the Submit-BTNotification function, as the Urgent scenario takes precedence but cannot be set via this parameter.
 
         .PARAMETER Visual
         Required. ToastVisual object, created by New-BTVisual, representing the core content of the toast.

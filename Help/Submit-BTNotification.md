@@ -7,7 +7,7 @@ Submits a completed toast notification for display.
 ## DESCRIPTION
 
 The `Submit-BTNotification` function submits a completed toast notification to the operating system's notification manager for display.
-This function supports advanced scenarios such as event callbacks for user actions or toast dismissal, sequence numbering to ensure correct update order, unique identification for toast replacement, expiration control, and direct Action Center delivery.
+This function supports advanced scenarios such as event callbacks for user actions or toast dismissal, sequence numbering to ensure correct update order, unique identification for toast replacement, expiration control, direct Action Center delivery, and designating a notification as "Important" (using the `-Urgent` switch) so that it can break through Focus Assist.
 
 When a script block is supplied for any of the event actions (`ActivatedAction`, `DismissedAction`, or `FailedAction`), the function ensures that only one registration for a logically identical handler is allowed per notification event type. This is accomplished by normalizing and hashing the script block; the resulting hash uniquely identifies the action for event registration purposes. Attempting to register the same handler multiple times for a given event will not create a duplicate subscription, but instead will produce an informative warning.
 
@@ -27,6 +27,7 @@ Specifying `-EventDataVariable` implicitly enables the behavior of `-ReturnEvent
 | `DataBinding`      | Hashtable   | Hashtable mapping strings to binding keys in a toast notification. Enables advanced updating scenarios.                | No        |
 | `ExpirationTime`   | DateTime    | When the notification is no longer relevant and should be removed from the Action Center.                             | No        |
 | `SuppressPopup`    | Switch      | If set, the notification is delivered directly to the Action Center (bypassing immediate display).                    | No        |
+| `Urgent`           | Switch      | If set, designates the toast as an "Important Notification" (scenario 'urgent') which can break through Focus Assist, ensuring the notification is delivered even when user focus mode is enabled. | No        |
 | `ActivatedAction`  | ScriptBlock | A script block executed if the user activates/clicks the toast notification.                                         | No        |
 | `DismissedAction`  | ScriptBlock | A script block executed if the user dismisses the toast notification.                                                | No        |
 | `FailedAction`     | ScriptBlock | A script block executed if the notification fails to display properly.                                               | No        |

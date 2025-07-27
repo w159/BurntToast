@@ -47,4 +47,10 @@ Describe 'Submit-BTNotification' {
             $output | Should -Not -Contain "Duplicate or conflicting OnActivated ScriptBlock event detected"
         }
     }
+Context 'Urgent scenario' {
+    It 'runs without error with -Urgent' {
+        $mockContent = [Activator]::CreateInstance([Microsoft.Toolkit.Uwp.Notifications.ToastContent])
+        { Submit-BTNotification -Content $mockContent -Urgent -WhatIf } | Should -Not -Throw
+    }
+}
 }

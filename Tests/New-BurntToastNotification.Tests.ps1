@@ -182,3 +182,9 @@ Context 'include attribution string' {
         $Log | Should -Be $Expected
     }
 }
+
+Context 'Urgent scenarios' {
+    It 'does not throw when using -Urgent' {
+        { New-BurntToastNotification -Text 'Critical Alert' -Urgent -WhatIf } | Should -Not -Throw
+    }
+}

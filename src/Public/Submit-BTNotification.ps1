@@ -48,6 +48,9 @@
         .PARAMETER EventDataVariable
         If specified, assigns the $Event variable from notification callbacks to this global variable name (e.g., -EventDataVariable MyVar gives $global:MyVar in handlers). Implies ReturnEventData.
 
+        .PARAMETER Urgent
+        If set, designates the toast as an "Important Notification" (scenario 'urgent') which can break through Focus Assist, ensuring the notification is delivered even when user focus mode is enabled.
+
         .INPUTS
         None. You cannot pipe input to this function.
 
@@ -71,6 +74,7 @@
         [hashtable] $DataBinding,
         [datetime] $ExpirationTime,
         [switch] $SuppressPopup,
+        [switch] $Urgent,
         [scriptblock] $ActivatedAction,
         [scriptblock] $DismissedAction,
         [scriptblock] $FailedAction,
@@ -84,15 +88,23 @@
 
     $ToastXml = [Windows.Data.Xml.Dom.XmlDocument]::new()
 
-    if (-not $DataBinding) {
-        $CleanContent = $Content.GetContent() -Replace '<text(.*?)>{', '<text$1>'
-        $CleanContent = $CleanContent.Replace('}</text>', '</text>')
-        $CleanContent = $CleanContent.Replace('="{', '="')
-        $CleanContent = $CleanContent.Replace('}" ', '" ')
+    $ToastXmlContent = $Content.GetContent()
 
-        $ToastXml.LoadXml($CleanContent)
-    } else {
-        $ToastXml.LoadXml($Content.GetContent())
+    if (-not $DataBinding) {
+        $ToastXmlContent = $ToastXmlContent -replace '<text(.*?)>{', '<text$1>'
+        $ToastXmlContent = $ToastXmlContent.Replace('}</text>', '</text>')
+        $ToastXmlContent = $ToastXmlContent.Replace('="{', '="')
+        $ToastXmlContent = $ToastXmlContent.Replace('}" ', '" ')
+    }
+
+    $ToastXml.LoadXml($ToastXmlContent)
+
+    if ($Urgent) {
+        try {
+            $ToastXml.GetElementsByTagName('toast')[0].SetAttribute('scenario', 'urgent')
+        } catch {
+            # We don't actually want to capture these errors, but rather suppress them.
+        }
     }
 
     $Toast = [Windows.UI.Notifications.ToastNotification]::new($ToastXml)
