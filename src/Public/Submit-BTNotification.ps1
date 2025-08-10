@@ -106,6 +106,14 @@
         try {$ToastXml.GetElementsByTagName('toast')[0].SetAttribute('scenario', 'urgent')} catch {}
     }
 
+    if ($ToastXml.GetElementsByTagName('toast')[0].GetAttribute('scenario') -eq 'incomingCall') {
+        foreach ($BindingElement in $ToastXml.GetElementsByTagName('binding')[0].ChildNodes) {
+            if ($BindingElement.TagName -eq 'text') {
+                $BindingElement.SetAttribute('hint-callScenarioCenterAlign', 'true')
+            }
+        }
+    }
+
     if ($ToastXml.GetXml() -match 'hint-actionId="(Red|Green)"') {
         try {$ToastXml.GetElementsByTagName('toast').SetAttribute('useButtonStyle', 'true')} catch {}
 
