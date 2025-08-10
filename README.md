@@ -32,6 +32,16 @@ See the [Chocolatey community package](https://chocolatey.org/packages/burnttoas
 
 ## Releases
 
+### [v1.1.0](https://github.com/Windos/BurntToast/releases/download/v1.1.0/BurntToast.zip)
+
+#### Features and Improvements
+
+- Add support for Important Notifications using the Urgent switch.
+
+- Add support for setting button colors.
+
+- Center align notification body text when using the IncomingCall scenario.
+
 ### [v1.0.1](https://github.com/Windos/BurntToast/releases/download/v1.0.1/BurntToast.zip)
 
 #### Bug Fixes
