@@ -1,11 +1,13 @@
 ﻿function New-BTButton {
     <#
         .SYNOPSIS
-        Creates a new clickable button for a Toast Notification.
+        Creates a new clickable button for a Toast Notification, with optional color styling.
 
         .DESCRIPTION
         The New-BTButton function creates a new button for a Toast Notification. Up to five buttons can be added to a single Toast notification.
-        Buttons may have display text, an icon, an optional activation type, argument string, or serve as system managed Dismiss/Snooze buttons.
+        Buttons may have display text, an icon, an optional activation type, argument string, serve as system managed Dismiss/Snooze buttons, and may optionally be rendered with colored button styles by specifying -Color.
+
+        If -Color is set to 'Green' or 'Red', the button will be displayed with a "Success" (green) or "Critical" (red) style in supported environments.
 
         .PARAMETER Snooze
         Switch. Creates a system-handled snooze button. When paired with a selection box on the toast, the snooze time is customizable.
@@ -27,6 +29,9 @@
 
         .PARAMETER Id
         String. Specifies an ID associated with another toast control (textbox or selection box). For standard buttons, this aligns the button next to a control, for snooze buttons it associates with a selection box.
+
+        .PARAMETER Color
+        String. Optional. If specified as 'Green' or 'Red', the button will be visually styled as "Success" (green) or "Critical" (red) where supported. Use for indicating primary/positive or destructive actions.
 
         .INPUTS
         None. You cannot pipe input to this function.
@@ -56,6 +61,14 @@
         $pic = 'C:\temp\example.png'
         New-BTButton -Content 'View Picture' -Arguments $pic -ImageUri $pic
         Button with a picture to the left, launches the image file.
+
+        .EXAMPLE
+        New-BTButton -Content 'Approve' -Arguments 'approve' -Color 'Green'
+        Creates a button with a green "Success" style intended for positive actions like approval.
+
+        .EXAMPLE
+        New-BTButton -Content 'Delete' -Arguments 'delete' -Color 'Red'
+        Creates a button with a red "Critical" style indicating a destructive action.
 
         .LINK
         https://github.com/Windos/BurntToast/blob/main/Help/New-BTButton.md
@@ -97,7 +110,10 @@
         [Parameter(ParameterSetName = 'Button')]
         [Parameter(ParameterSetName = 'Snooze')]
         [alias('TextBoxId', 'SelectionBoxId')]
-        [string] $Id
+        [string] $Id,
+
+        [ValidateSet('Green', 'Red')]
+        [string] $Color
     )
 
     switch ($PsCmdlet.ParameterSetName) {
@@ -125,7 +141,7 @@
             if ($Id) {
                 $Button.SelectionBoxId = $Id
             }
-            
+
             if ($ImageUri) {
                 $Button.ImageUri = $ImageUri
             }
@@ -137,6 +153,10 @@
                 $Button = [Microsoft.Toolkit.Uwp.Notifications.ToastButtonDismiss]::new()
             }
         }
+    }
+
+    if ($Color) {
+        $Button = $Button.SetHintActionId($Color)
     }
 
     switch ($Button.GetType().Name) {

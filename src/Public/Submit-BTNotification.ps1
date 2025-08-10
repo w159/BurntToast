@@ -6,6 +6,9 @@
         .DESCRIPTION
         The Submit-BTNotification function submits a completed toast notification to the operating system's notification manager for display.
         This function supports advanced scenarios such as event callbacks for user actions or toast dismissal, sequence numbering to ensure correct update order, unique identification for toast replacement, expiration control, and direct Action Center delivery.
+        Supports colored action buttons: when a button generated via New-BTButton includes the -Color parameter
+        ('Green' or 'Red'), the notification will style those buttons as "Success" (green) or "Critical" (red)
+        to visually distinguish positive or destructive actions where supported.
 
         When an action ScriptBlock is supplied (Activated, Dismissed, or Failed), a normalized SHA256 hash of its content is used to generate a unique SourceIdentifier for event registration.
         This prevents duplicate handler registration for the same ScriptBlock, warning if a duplicate registration is attempted.
@@ -48,6 +51,9 @@
         .PARAMETER EventDataVariable
         If specified, assigns the $Event variable from notification callbacks to this global variable name (e.g., -EventDataVariable MyVar gives $global:MyVar in handlers). Implies ReturnEventData.
 
+        .PARAMETER Urgent
+        If set, designates the toast as an "Important Notification" (scenario 'urgent') which can break through Focus Assist, ensuring the notification is delivered even when user focus mode is enabled.
+
         .INPUTS
         None. You cannot pipe input to this function.
 
@@ -71,6 +77,7 @@
         [hashtable] $DataBinding,
         [datetime] $ExpirationTime,
         [switch] $SuppressPopup,
+        [switch] $Urgent,
         [scriptblock] $ActivatedAction,
         [scriptblock] $DismissedAction,
         [scriptblock] $FailedAction,
@@ -84,15 +91,40 @@
 
     $ToastXml = [Windows.Data.Xml.Dom.XmlDocument]::new()
 
-    if (-not $DataBinding) {
-        $CleanContent = $Content.GetContent() -Replace '<text(.*?)>{', '<text$1>'
-        $CleanContent = $CleanContent.Replace('}</text>', '</text>')
-        $CleanContent = $CleanContent.Replace('="{', '="')
-        $CleanContent = $CleanContent.Replace('}" ', '" ')
+    $ToastXmlContent = $Content.GetContent()
 
-        $ToastXml.LoadXml($CleanContent)
-    } else {
-        $ToastXml.LoadXml($Content.GetContent())
+    if (-not $DataBinding) {
+        $ToastXmlContent = $ToastXmlContent -replace '<text(.*?)>{', '<text$1>'
+        $ToastXmlContent = $ToastXmlContent.Replace('}</text>', '</text>')
+        $ToastXmlContent = $ToastXmlContent.Replace('="{', '="')
+        $ToastXmlContent = $ToastXmlContent.Replace('}" ', '" ')
+    }
+
+    $ToastXml.LoadXml($ToastXmlContent)
+
+    if ($Urgent) {
+        try {$ToastXml.GetElementsByTagName('toast')[0].SetAttribute('scenario', 'urgent')} catch {}
+    }
+
+    if ($ToastXml.GetElementsByTagName('toast')[0].GetAttribute('scenario') -eq 'incomingCall') {
+        foreach ($BindingElement in $ToastXml.GetElementsByTagName('binding')[0].ChildNodes) {
+            if ($BindingElement.TagName -eq 'text') {
+                $BindingElement.SetAttribute('hint-callScenarioCenterAlign', 'true')
+            }
+        }
+    }
+
+    if ($ToastXml.GetXml() -match 'hint-actionId="(Red|Green)"') {
+        try {$ToastXml.GetElementsByTagName('toast').SetAttribute('useButtonStyle', 'true')} catch {}
+
+        foreach ($ActionElement in $ToastXml.GetElementsByTagName('actions')[0].ChildNodes) {
+            if ($ActionElement.GetAttribute('hint-actionId') -eq 'Red') {
+                $ActionElement.SetAttribute('hint-buttonStyle', 'Critical')
+            }
+            if ($ActionElement.GetAttribute('hint-actionId') -eq 'Green') {
+                $ActionElement.SetAttribute('hint-buttonStyle', 'Success')
+            }
+        }
     }
 
     $Toast = [Windows.UI.Notifications.ToastNotification]::new($ToastXml)

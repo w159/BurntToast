@@ -8,6 +8,7 @@ Creates and displays a rich Toast Notification for Windows.
 
 The `New-BurntToastNotification` function creates and displays a Toast Notification supporting text, images, sounds, progress bars, actions, snooze/dismiss, and more on Microsoft Windows 10+.
 Parameter sets ensure mutual exclusivity (e.g., you cannot use Silent and Sound together).
+The `-Urgent` switch will designate the toast as an "Important Notification" that can break through Focus Assist.
 
 ## PARAMETERS
 
@@ -32,6 +33,7 @@ Parameter sets ensure mutual exclusivity (e.g., you cannot use Silent and Sound 
 | `ActivatedAction`  | ScriptBlock         | Script block to invoke when the toast is activated (clicked).                                               | No                                                         |
 | `DismissedAction`  | ScriptBlock         | Script block to invoke when the toast is dismissed by the user.                                             | No                                                         |
 | `EventDataVariable`| String              | The name of the global variable that will contain event data for use in event handler script blocks.        | No                                                         |
+| `Urgent`           | Switch              | Designates the toast as an "Important Notification" (scenario 'urgent'), allowing breakthrough of Focus Assist. | No |
 
 ## INPUTS
 
@@ -84,6 +86,14 @@ New-BurntToastNotification -Text 'Integration Complete' -Attribution 'Powered by
 ```
 
 Displays a notification with attribution at the bottom, e.g., "Powered by BurntToast".
+
+### Example: Important Notification with Urgent
+
+```powershell
+New-BurntToastNotification -Text 'Critical System Alert' -Urgent
+```
+
+Marks the notification as "Important", causing it to break through Focus Assist.
 
 ## LINKS
 

@@ -26,6 +26,8 @@
 
         .PARAMETER Scenario
         Enum. Tells Windows to treat the toast as an alarm, reminder, or more (ToastScenario).
+        If the IncomingCall scenario is selected then any main body text on the toast notification, that is no longer than a single line in length, will be center aligned.
+        Will be ignored if toast is submitted with `-Urgent` switch on the Submit-BTNotification function, as the Urgent scenario takes precedence but cannot be set via this parameter.
 
         .PARAMETER Visual
         Required. ToastVisual object, created by New-BTVisual, representing the core content of the toast.

@@ -6,6 +6,7 @@
         .DESCRIPTION
         The New-BurntToastNotification function creates and displays a Toast Notification supporting text, images, sounds, progress bars, actions, snooze/dismiss, attribution, and more on Microsoft Windows 10+.
         Parameter sets ensure mutual exclusivity (e.g., you cannot use Silent and Sound together).
+        The `-Urgent` switch will designate the toast as an "Important Notification" that can break through Focus Assist.
 
         .PARAMETER Text
         Up to 3 strings to show within the Toast Notification. The first is the title.
@@ -63,6 +64,9 @@
 
         .PARAMETER EventDataVariable
         The name of the global variable that will contain event data for use in event handler script blocks.
+
+        .PARAMETER Urgent
+        If set, designates the toast as an "Important Notification" (scenario 'urgent'), allowing it to break through Focus Assist.
 
         .INPUTS
         None. You cannot pipe input to this function.
@@ -186,7 +190,9 @@
 
         [scriptblock] $DismissedAction,
 
-        [string] $EventDataVariable
+        [string] $EventDataVariable,
+
+        [switch] $Urgent
     )
 
     $ChildObjects = @()
@@ -298,6 +304,10 @@
 
     if ($EventDataVariable) {
         $ToastSplat.Add('EventDataVariable', $EventDataVariable)
+    }
+
+    if ($Urgent) {
+        $ToastSplat.Add('Urgent', $true)
     }
 
     if ($PSCmdlet.ShouldProcess( "submitting: $($Content.GetContent())" )) {
